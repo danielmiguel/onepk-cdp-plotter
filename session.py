@@ -29,7 +29,7 @@ class Create_Ne:
     def config(self):
         session_config = SessionConfig(SessionConfig.SessionTransportMode.TLS)
         session_config.ca_certs = self.ca_path
-	return session_config
+        return session_config
     def get_ne(self):
         network_application = NetworkApplication.get_instance()
         network_application.name = self.app_name
@@ -42,7 +42,4 @@ if __name__ == '__main__':
 	ne = cdp_plotter.get_ne()
 	session_config = cdp_plotter.config()
 	session_handle = ne.connect(username, password, session_config)
-
-
-
 
