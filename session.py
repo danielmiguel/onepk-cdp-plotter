@@ -12,6 +12,13 @@ from onep.element import SessionProperty
 from onep.core.exception import OnepException
 from onep.core.util import tlspinning
 
+from onep.topology import TopologyListener
+from onep.topology import TopologyEvent
+from onep.topology import TopologyClass
+from onep.topology import TopologyFilter
+from onep.topology import Edge
+
+
 element_hostname = '10.10.10.110'
 username = 'evelio'
 password = 'vila'
@@ -42,4 +49,11 @@ if __name__ == '__main__':
 	ne = cdp_plotter.get_ne()
 	session_config = cdp_plotter.config()
 	session_handle = ne.connect(username, password, session_config)
+
+    topology = TopologyClass(network_element, TopologyClass.TopologyType.CDP)
+    graph = topology.get_graph()
+    edgeList = graph.get_edge_list(Edge.EdgeType.UNDIRECTED)
+    for edge in edgeList:
+        print "remote host name is ", edge.tail_node.name
+#       print re.search(r"Node\[([\d\w.]+),([\d.]+),CDP_NODE\]",edge.tail_node).group(1)
 
