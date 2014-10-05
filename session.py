@@ -45,15 +45,15 @@ class Create_Ne:
 
 
 if __name__ == '__main__':
-	cdp_plotter = Create_Ne(aplicationName,root_cert_path,element_hostname)
-	ne = cdp_plotter.get_ne()
-	session_config = cdp_plotter.config()
-	session_handle = ne.connect(username, password, session_config)
-
+    cdp_plotter = Create_Ne(aplicationName,root_cert_path,element_hostname)
+    ne = cdp_plotter.get_ne()
+    session_config = cdp_plotter.config()
+    session_handle = ne.connect(username, password, session_config)
+    
     topology = TopologyClass(network_element, TopologyClass.TopologyType.CDP)
     graph = topology.get_graph()
     edgeList = graph.get_edge_list(Edge.EdgeType.UNDIRECTED)
     for edge in edgeList:
         print "remote host name is ", edge.tail_node.name
-#       print re.search(r"Node\[([\d\w.]+),([\d.]+),CDP_NODE\]",edge.tail_node).group(1)
+        #       print re.search(r"Node\[([\d\w.]+),([\d.]+),CDP_NODE\]",edge.tail_node).group(1)
 
