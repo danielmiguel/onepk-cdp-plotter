@@ -18,8 +18,8 @@ from onep.topology import TopologyClass
 from onep.topology import TopologyFilter
 from onep.topology import Edge
 
+nodes = {'router1': { 'ip': '10.10.10.110'}, 'router2': { 'ip': '10.10.10.120'}}
 
-element_hostname = '10.10.10.110'
 username = 'evelio'
 password = 'vila'
 transport = "tls"
@@ -43,17 +43,29 @@ class Create_Ne:
         network_element = network_application.get_network_element(self.ip)
         return network_element
 
+def get_data(node,ip,username='evelio',password='vila',transport='tls'\
+            ,root_cert_path = 'ca.pem',aplicationName='cdp-plotter'):
+        ''' return remote hosts '''
+        cdp_plotter = Create_Ne(aplicationName,root_cert_path,ip)
+        ne = cdp_plotter.get_ne()
+        session_config = cdp_plotter.config()
+        session_handle = ne.connect(username, password, session_config)
+        topology = TopologyClass(ne, TopologyClass.TopologyType.CDP)
+        graph = topology.get_graph()
+        edgeList = graph.get_edge_list(Edge.EdgeType.UNDIRECTED)
+        remote_hosts = [edge.tail_node.name for edge in edgeList if edge.tail_node ]
+        ne.disconnect()
+        return remote_hosts
+
 
 if __name__ == '__main__':
-    cdp_plotter = Create_Ne(aplicationName,root_cert_path,element_hostname)
-    ne = cdp_plotter.get_ne()
-    session_config = cdp_plotter.config()
-    session_handle = ne.connect(username, password, session_config)
-    
-    topology = TopologyClass(network_element, TopologyClass.TopologyType.CDP)
-    graph = topology.get_graph()
-    edgeList = graph.get_edge_list(Edge.EdgeType.UNDIRECTED)
-    for edge in edgeList:
-        print "remote host name is ", edge.tail_node.name
-        #       print re.search(r"Node\[([\d\w.]+),([\d.]+),CDP_NODE\]",edge.tail_node).group(1)
+
+#       print re.search(r"Node\[([\d\w.]+),([\d.]+),CDP_NODE\]",edge.tail_node).group(1)
+
+dict={}
+for key,values in nodes.items():
+    dict[key]= get_data(values['ip'])
+
+
+
 
