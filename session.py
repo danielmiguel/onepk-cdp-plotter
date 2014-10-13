@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-#Cnx and session handling
 
 import logging
 from onep.element import NetworkElement
@@ -18,15 +17,8 @@ from onep.topology import TopologyClass
 from onep.topology import TopologyFilter
 from onep.topology import Edge
 
-nodes = {'router1': { 'ip': '10.10.10.110'}, 'router2': { 'ip': '10.10.10.120'}}
-
-username = 'evelio'
-password = 'vila'
-transport = "tls"
-network_element = None
-session_handle = None
-root_cert_path = 'ca.pem'
-aplicationName = 'cdp-plotter'
+nodes = {'router1': { 'ip': '10.10.10.110'}, 'router2': { 'ip': '10.10.10.120'},\ 
+'router3': {'ip': '10.10.30.130'}}
 
 class Create_Ne:
     def __init__(self,name,ca,ip):
@@ -62,9 +54,7 @@ if __name__ == '__main__':
 
 #       print re.search(r"Node\[([\d\w.]+),([\d.]+),CDP_NODE\]",edge.tail_node).group(1)
 
-dict={}
-for key,values in nodes.items():
-    dict[key]= get_data(values['ip'])
+    dict= { key: get_data(values['ip']) for key,values in nodes.items() }
 
 
 
