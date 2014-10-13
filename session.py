@@ -17,6 +17,8 @@ from onep.topology import TopologyClass
 from onep.topology import TopologyFilter
 from onep.topology import Edge
 
+from graphviz import Digraph
+
 nodes = {'router1': { 'ip': '10.10.10.110'}, 'router2': { 'ip': '10.10.10.120'},\ 
 'router3': {'ip': '10.10.30.130'}}
 
@@ -52,10 +54,17 @@ def get_data(ip,username='evelio',password='vila',transport='tls'\
 
 if __name__ == '__main__':
 
-#       print re.search(r"Node\[([\d\w.]+),([\d.]+),CDP_NODE\]",edge.tail_node).group(1)
 
     dict= { key: set(get_data(values['ip'])) for key,values in nodes.items() }
 
-    print dict
+    dot = Digraph(comment='CDP Topology')
+
+    for key, values in dict.items():
+        dot.node(key)
+
+    print dot.source    
+
+
+
 
 
