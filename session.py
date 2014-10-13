@@ -35,7 +35,7 @@ class Create_Ne:
         network_element = network_application.get_network_element(self.ip)
         return network_element
 
-def get_data(node,ip,username='evelio',password='vila',transport='tls'\
+def get_data(ip,username='evelio',password='vila',transport='tls'\
             ,root_cert_path = 'ca.pem',aplicationName='cdp-plotter'):
         ''' return remote hosts '''
         cdp_plotter = Create_Ne(aplicationName,root_cert_path,ip)
@@ -54,8 +54,8 @@ if __name__ == '__main__':
 
 #       print re.search(r"Node\[([\d\w.]+),([\d.]+),CDP_NODE\]",edge.tail_node).group(1)
 
-    dict= { key: get_data(values['ip']) for key,values in nodes.items() }
+    dict= { key: set(get_data(values['ip'])) for key,values in nodes.items() }
 
-
+    print dict
 
 
