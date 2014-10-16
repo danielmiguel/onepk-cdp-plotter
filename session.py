@@ -18,6 +18,8 @@ from onep.topology import TopologyFilter
 from onep.topology import Edge
 
 
+from networkx import nx
+
 nodes = {'router1': { 'ip': '10.10.10.110'}, 'router2': { 'ip': '10.10.10.120'},\ 
 'router3': {'ip': '10.10.30.130'}}
 
@@ -40,34 +42,40 @@ def get_data(dict ,username='evelio',password='vila',transport='tls'\
             ,root_cert_path = 'ca.pem',aplicationName='cdp-plotter'):
         ''' return remote hosts '''
 
-        # creating network element
-        cdp_plotter = Create_Ne(aplicationName,root_cert_path,ip)
-        ne = cdp_plotter.get_ne()
-        session_config = cdp_plotter.config()
-
-#       create session_handle and pass config object
-
-#       Try to connect to network element
-
-        try:
+    for key,values in dict.items():
+            # creating network element
+            cdp_plotter = Create_Ne(aplicationName,root_cert_path,values['ip'])
+                
+            ne = cdp_plotter.get_ne()
+            session_config = cdp_plotter.config()
+        try:        
             session_handle = ne.connect(username, password, session_config)
+            
             topology = TopologyClass(ne, TopologyClass.TopologyType.CDP)
             graph = topology.get_graph()
 
             edgeList = graph.get_edge_list(Edge.EdgeType.UNDIRECTED)
-            remote_hosts = [edge.tail_node.name for edge in edgeList if edge.tail_node ]
-            ne.disconnect()
+            remote_hosts = [edge.tail_node.name for edge in edgeList if edge.tail_node]
+            
             yield remote_hosts
+
         expect:
             print "Unable to connect to network element {} .".format(ip)
 
+        if ne.is_connected():
+            try:
+                ne.disconnect()
+            expect:
+                print 'Unable to disconnect from network element {}'.format(values['ip'])    
+
+
+
 if __name__ == '__main__':
 
+    Graph = nx.MultiGraph()
 
-    dict= { key: set(get_data(values['ip'])) for key,values in nodes.items() }
-
-
-
+    for host in get_data(nodes):
+         G.add_node(host)
 
 
 
