@@ -17,7 +17,6 @@ from onep.topology import TopologyClass
 from onep.topology import TopologyFilter
 from onep.topology import Edge
 
-from graphviz import Digraph
 
 nodes = {'router1': { 'ip': '10.10.10.110'}, 'router2': { 'ip': '10.10.10.120'},\ 
 'router3': {'ip': '10.10.30.130'}}
@@ -37,32 +36,36 @@ class Create_Ne:
         network_element = network_application.get_network_element(self.ip)
         return network_element
 
-def get_data(ip,username='evelio',password='vila',transport='tls'\
+def get_data(dict ,username='evelio',password='vila',transport='tls'\
             ,root_cert_path = 'ca.pem',aplicationName='cdp-plotter'):
         ''' return remote hosts '''
+
+        # creating network element
         cdp_plotter = Create_Ne(aplicationName,root_cert_path,ip)
         ne = cdp_plotter.get_ne()
         session_config = cdp_plotter.config()
-        session_handle = ne.connect(username, password, session_config)
-        topology = TopologyClass(ne, TopologyClass.TopologyType.CDP)
-        graph = topology.get_graph()
-        edgeList = graph.get_edge_list(Edge.EdgeType.UNDIRECTED)
-        remote_hosts = [edge.tail_node.name for edge in edgeList if edge.tail_node ]
-        ne.disconnect()
-        return remote_hosts
 
+#       create session_handle and pass config object
+
+#       Try to connect to network element
+
+        try:
+            session_handle = ne.connect(username, password, session_config)
+            topology = TopologyClass(ne, TopologyClass.TopologyType.CDP)
+            graph = topology.get_graph()
+
+            edgeList = graph.get_edge_list(Edge.EdgeType.UNDIRECTED)
+            remote_hosts = [edge.tail_node.name for edge in edgeList if edge.tail_node ]
+            ne.disconnect()
+            yield remote_hosts
+        expect:
+            print "Unable to connect to network element {} .".format(ip)
 
 if __name__ == '__main__':
 
 
     dict= { key: set(get_data(values['ip'])) for key,values in nodes.items() }
 
-    dot = Digraph(comment='CDP Topology')
-
-    for key, values in dict.items():
-        dot.node(key)
-
-    print dot.source    
 
 
 
