@@ -17,11 +17,11 @@ from onep.topology import TopologyClass
 from onep.topology import TopologyFilter
 from onep.topology import Edge
 
-
+import matplotlib.pyplot as plt
 from networkx import nx
 
-nodes = {'router1': { 'ip': '10.10.10.110'}, 'router2': { 'ip': '10.10.10.120'},\ 
-'router3': {'ip': '10.10.30.130'}}
+nodes = {'router1': { 'ip': '10.10.10.110'}, 'router2': { 'ip': '10.10.10.120'}, \
+	'router3': {'ip': '10.10.10.130'}}
 
 class Create_Ne:
     def __init__(self,name,ca,ip):
@@ -40,32 +40,32 @@ class Create_Ne:
 
 def get_data(dict ,username='evelio',password='vila',transport='tls'\
             ,root_cert_path = 'ca.pem',aplicationName='cdp-plotter'):
-        ''' return remote hosts '''
+    ''' return remote hosts '''
 
     for key,values in dict.items():
-            # creating network element
-            cdp_plotter = Create_Ne(aplicationName,root_cert_path,values['ip'])
+        # creating network element
+        cdp_plotter = Create_Ne(aplicationName,root_cert_path,values['ip'])
                 
-            ne = cdp_plotter.get_ne()
-            session_config = cdp_plotter.config()
-        try:        
-            session_handle = ne.connect(username, password, session_config)
-            
+        ne = cdp_plotter.get_ne()
+        session_config = cdp_plotter.config()
+                
+        session_handle = ne.connect(username, password, session_config)
+        
+        if session_handle:    
             topology = TopologyClass(ne, TopologyClass.TopologyType.CDP)
             graph = topology.get_graph()
 
-            edgeList = graph.get_edge_list(Edge.EdgeType.UNDIRECTED)
-            remote_hosts = [edge.tail_node.name for edge in edgeList if edge.tail_node]
+            yield {key:  graph.get_edge_list(Edge.EdgeType.UNDIRECTED) }
             
-            yield remote_hosts
 
-        expect:
-            print "Unable to connect to network element {} .".format(ip)
+        else:
+            print "Unable to connect to network element {} .".format(values['ip'])
+            continue
 
         if ne.is_connected():
             try:
                 ne.disconnect()
-            expect:
+            except:
                 print 'Unable to disconnect from network element {}'.format(values['ip'])    
 
 
@@ -73,9 +73,11 @@ def get_data(dict ,username='evelio',password='vila',transport='tls'\
 if __name__ == '__main__':
 
     Graph = nx.MultiGraph()
-
-    for host in get_data(nodes):
-         G.add_node(host)
-
-
-
+    
+    for edges in get_data(nodes):
+        edgelist= edges.values()[0]
+        for edge in edgelist:
+           Graph.add_node(edge.head_node.name)
+           Graph.add_edge(edge.head_node.name,edge.tail_node.name)
+    nx.draw_networkx(Graph)
+    plt.savefig('graph.png')
